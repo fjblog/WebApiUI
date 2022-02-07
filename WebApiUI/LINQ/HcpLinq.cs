@@ -13,11 +13,13 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace WebApiUI.HuoChePiao 
+namespace WebApiUI.LINQ
 {
-    public partial class huochepiao : UIForm
+    public partial class HcpLinq : UIForm
     {
-        public huochepiao()
+        List<list> linq_list = new List<list>();
+        List<list> result_list = new List<list>();
+        public HcpLinq()
         {
             InitializeComponent();
             dateTimePicker1.MinDate = DateTime.Now.Date.AddDays(1);
@@ -43,6 +45,40 @@ namespace WebApiUI.HuoChePiao
                 return null;
             }
             return root;
+        }
+
+        private List<list> get_list()
+        {
+            List<list> list = new List<list>();
+            Root root = QueryTicket();
+            if (root != null)
+            { 
+                foreach (var v in root.data.list)
+                {
+                    list.Add(new list()
+                    {
+                        trainNum = v.trainNum,
+                        trainTypeName = v.trainTypeName,
+                        departStationName = v.departStationName,
+                        destStationName = v.destStationName,
+                        departDepartTime = v.departDepartTime,
+                        destArriveTime = v.destArriveTime,
+                        durationStr = v.durationStr
+                    });
+                }
+            }
+            return list;
+        }
+
+        private void dgv_Header()
+        {
+            uiDataGridView1.Columns[0].HeaderText = "车次";
+            uiDataGridView1.Columns[1].HeaderText = "车型";
+            uiDataGridView1.Columns[2].HeaderText = "出发站";
+            uiDataGridView1.Columns[3].HeaderText = "到达站";
+            uiDataGridView1.Columns[4].HeaderText = "出发时间";
+            uiDataGridView1.Columns[5].HeaderText = "到达时间";
+            uiDataGridView1.Columns[6].HeaderText = "历时";
         }
 
         private void add_checkbox()
@@ -74,175 +110,143 @@ namespace WebApiUI.HuoChePiao
                         }
                     }
                 }
-            }                
+            }
         }
 
         private void uiButton1_Click(object sender, EventArgs e)
         {
             DateTime before = System.DateTime.Now;
+
+            List<list> list = get_list();
+            linq_list.Clear();
+            result_list.Clear();
             uiDataGridView1.DataSource = null;
             uiDataGridView1.Rows.Clear();
             if (checkedListBox1.Items.Count == 0)
             {
                 add_checkbox();
             }
-
             Root root = QueryTicket();
-            if(root != null)
+
+            if (root != null)
             {
                 //不选CheckBox
                 if (checkedListBox1.CheckedItems.Count == 0 && checkedListBox2.CheckedItems.Count == 0 && checkedListBox3.CheckedItems.Count == 0)
                 {
-                    foreach (var v in root.data.list)
-                    {
-
-                        uiDataGridView1.Rows.Add(v.trainNum, v.trainTypeName, v.departStationName, v.destStationName, v.departDepartTime,
-                                v.destArriveTime, v.durationStr);
-                    }
+                    uiDataGridView1.DataSource = get_list();
+                    dgv_Header();
                 }
                 //只选择车型
                 if (checkedListBox1.CheckedItems.Count > 0 && checkedListBox2.CheckedItems.Count == 0 && checkedListBox3.CheckedItems.Count == 0)
                 {
-                    foreach (var v in root.data.list)
+                    foreach (var v1 in checkedListBox1.CheckedItems)
                     {
-                        foreach (var v1 in checkedListBox1.CheckedItems)
-                        {
-                            if (v1.ToString().Substring(2) == v.trainTypeName)
-                            {
-                                uiDataGridView1.Rows.Add(v.trainNum, v.trainTypeName, v.departStationName, v.destStationName, v.departDepartTime,
-                                v.destArriveTime, v.durationStr);
-                            }
-                        }
+                        //使用linq查询集合,Union取两个集合的并集
+                        linq_list = (from c in list where c.trainTypeName == v1.ToString().Substring(2) select c).ToList();
+                        result_list = result_list.Union(linq_list).ToList();
                     }
+                    uiDataGridView1.DataSource = result_list;
+                    dgv_Header();
                 }
 
                 //选择车型和出发车站
                 if (checkedListBox1.CheckedItems.Count > 0 && checkedListBox2.CheckedItems.Count > 0 && checkedListBox3.CheckedItems.Count == 0)
                 {
-                    foreach (var v in root.data.list)
+                    foreach (var v2 in checkedListBox2.CheckedItems)
                     {
-                        foreach (var v2 in checkedListBox2.CheckedItems)
+                        foreach (var v1 in checkedListBox1.CheckedItems)
                         {
-                            if (v2.ToString() == v.departStationName)
-                            {
-                                foreach (var v1 in checkedListBox1.CheckedItems)
-                                {
-                                    if (v1.ToString().Substring(2) == v.trainTypeName)
-                                    {
-                                        uiDataGridView1.Rows.Add(v.trainNum, v.trainTypeName, v.departStationName, v.destStationName, v.departDepartTime,
-                                        v.destArriveTime, v.durationStr);
-                                    }
-                                }
-                            }
-
+                            linq_list = (from c in list
+                                         where c.trainTypeName == v1.ToString().Substring(2) &&
+                          c.departStationName == v2.ToString()
+                                         select c).ToList();
+                            result_list = result_list.Union(linq_list).ToList();
                         }
                     }
+                    uiDataGridView1.DataSource = result_list;
+                    dgv_Header();
                 }
 
                 //全选
                 if (checkedListBox1.CheckedItems.Count > 0 && checkedListBox2.CheckedItems.Count > 0 && checkedListBox3.CheckedItems.Count > 0)
                 {
-                    foreach (var v in root.data.list)
+                    foreach (var v3 in checkedListBox3.CheckedItems)
                     {
-                        foreach (var v3 in checkedListBox3.CheckedItems)
+                        foreach (var v2 in checkedListBox2.CheckedItems)
                         {
-                            if (v3.ToString() == v.destStationName)
+                            foreach (var v1 in checkedListBox1.CheckedItems)
                             {
-                                foreach (var v2 in checkedListBox2.CheckedItems)
-                                {
-                                    if (v2.ToString() == v.departStationName)
-                                    {
-                                        foreach (var v1 in checkedListBox1.CheckedItems)
-                                        {
-                                            if (v1.ToString().Substring(2) == v.trainTypeName)
-                                            {
-                                                uiDataGridView1.Rows.Add(v.trainNum, v.trainTypeName, v.departStationName, v.destStationName, v.departDepartTime,
-                                                v.destArriveTime, v.durationStr);
-                                            }
-                                        }
-                                    }
-                                }
+                                linq_list = (from c in list
+                                             where c.trainTypeName == v1.ToString().Substring(2) &&
+                              c.departStationName == v2.ToString() &&
+                              c.destStationName == v3.ToString()
+                                             select c).ToList();
+                                result_list = result_list.Union(linq_list).ToList();
                             }
                         }
                     }
+                    uiDataGridView1.DataSource = result_list;
+                    dgv_Header();
                 }
 
                 //只选择出发车站
                 if (checkedListBox1.CheckedItems.Count == 0 && checkedListBox2.CheckedItems.Count > 0 && checkedListBox3.CheckedItems.Count == 0)
                 {
-                    foreach (var v in root.data.list)
+                    foreach (var v2 in checkedListBox2.CheckedItems)
                     {
-                        foreach (var v2 in checkedListBox2.CheckedItems)
-                        {
-                            if (v2.ToString() == v.departStationName)
-                            {
-                                uiDataGridView1.Rows.Add(v.trainNum, v.trainTypeName, v.departStationName, v.destStationName, v.departDepartTime,
-                                v.destArriveTime, v.durationStr);
-                            }
-                        }
+                        linq_list = (from c in list where c.departStationName == v2.ToString() select c).ToList();
+                        result_list = result_list.Union(linq_list).ToList();
                     }
+                    uiDataGridView1.DataSource = result_list;
+                    dgv_Header();
                 }
 
                 //只选择到达车站
                 if (checkedListBox1.CheckedItems.Count == 0 && checkedListBox2.CheckedItems.Count == 0 && checkedListBox3.CheckedItems.Count > 0)
                 {
-                    foreach (var v in root.data.list)
+                    foreach (var v3 in checkedListBox3.CheckedItems)
                     {
-                        foreach (var v3 in checkedListBox3.CheckedItems)
-                        {
-                            if (v3.ToString() == v.destStationName)
-                            {
-                                uiDataGridView1.Rows.Add(v.trainNum, v.trainTypeName, v.departStationName, v.destStationName, v.departDepartTime,
-                                v.destArriveTime, v.durationStr);
-                            }
-                        }
+                        linq_list = (from c in list where c.destStationName == v3.ToString() select c).ToList();
+                        result_list = result_list.Union(linq_list).ToList();
                     }
+                    uiDataGridView1.DataSource = result_list;
+                    dgv_Header();
                 }
 
                 //选择车型和到达车站
                 if (checkedListBox1.CheckedItems.Count > 0 && checkedListBox2.CheckedItems.Count == 0 && checkedListBox3.CheckedItems.Count > 0)
                 {
-                    foreach (var v in root.data.list)
+                    foreach (var v3 in checkedListBox3.CheckedItems)
                     {
-                        foreach (var v3 in checkedListBox3.CheckedItems)
+                        foreach (var v1 in checkedListBox1.CheckedItems)
                         {
-                            if (v3.ToString() == v.destStationName)
-                            {
-                                foreach (var v1 in checkedListBox1.CheckedItems)
-                                {
-                                    if (v1.ToString().Substring(2) == v.trainTypeName)
-                                    {
-                                        uiDataGridView1.Rows.Add(v.trainNum, v.trainTypeName, v.departStationName, v.destStationName, v.departDepartTime,
-                                        v.destArriveTime, v.durationStr);
-                                    }
-                                }
-                            }
-
+                            linq_list = (from c in list
+                                         where c.trainTypeName == v1.ToString().Substring(2) &&
+                          c.destStationName == v3.ToString()
+                                         select c).ToList();
+                            result_list = result_list.Union(linq_list).ToList();
                         }
                     }
+                    uiDataGridView1.DataSource = result_list;
+                    dgv_Header();
                 }
 
                 //选择出发车站和到达车站
                 if (checkedListBox1.CheckedItems.Count == 0 && checkedListBox2.CheckedItems.Count > 0 && checkedListBox3.CheckedItems.Count > 0)
                 {
-                    foreach (var v in root.data.list)
+                    foreach (var v3 in checkedListBox3.CheckedItems)
                     {
-                        foreach (var v3 in checkedListBox3.CheckedItems)
+                        foreach (var v2 in checkedListBox2.CheckedItems)
                         {
-                            if (v3.ToString() == v.destStationName)
-                            {
-                                foreach (var v2 in checkedListBox2.CheckedItems)
-                                {
-                                    if (v2.ToString() == v.departStationName)
-                                    {
-                                        uiDataGridView1.Rows.Add(v.trainNum, v.trainTypeName, v.departStationName, v.destStationName, v.departDepartTime,
-                                        v.destArriveTime, v.durationStr);
-                                    }
-                                }
-                            }
-
+                            linq_list = (from c in list
+                                         where c.departStationName == v2.ToString() &&
+                          c.destStationName == v3.ToString()
+                                         select c).ToList();
+                            result_list = result_list.Union(linq_list).ToList();
                         }
                     }
+                    uiDataGridView1.DataSource = result_list;
+                    dgv_Header();
                 }
             }
             else
@@ -307,5 +311,6 @@ namespace WebApiUI.HuoChePiao
             checkedListBox2.Items.Clear();
             checkedListBox3.Items.Clear();
         }
+
     }
 }

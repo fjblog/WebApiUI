@@ -16,21 +16,29 @@ using WebApiUI.BaiDu;
 using WebApiUI.HuiLv;
 using WebApiUI.Jiqiren;
 using WebApiUI.HuoChePiao;
+using WebApiUI.LINQ;
+using System.Net.NetworkInformation;
+using System.Threading;
 
 namespace WebApiUI
 {
     public partial class Form1 : UIForm
     {
-
         static string path = Environment.CurrentDirectory;
         IniFile ini = new IniFile(path + @"\setup.ini");
+        long lastSendCount = 0;
+        long lastRevCount = 0;
+       
 
         public Form1()
         {
             InitializeComponent();
 
-            uiLabel1.Text = "日期：" + DateTime.Now.ToString().Substring(0, 11);
+            Control.CheckForIllegalCrossThreadCalls = false;
 
+            Thread thread = new Thread(new ThreadStart(timer));
+            thread.Start();
+            thread.IsBackground = true;
             #region 读取ini文件获取主题颜色
             string color = ini.ReadString("Style", "UIStyle", "");
             if (color == "Blue")
@@ -67,6 +75,69 @@ namespace WebApiUI
             }
             #endregion
 
+        }
+
+        private void timer()
+        {
+            uiLabel1.Text = DateTime.Now.ToString();
+            pingbaidu();
+            wangsu();
+        }
+
+        private void pingbaidu()
+        {
+            var ping = new Ping();
+            var reply = ping.Send("www.baidu.com");
+            uiLabel2.Text = "延迟：" + reply.RoundtripTime + "ms";
+        }
+
+        private void wangsu()
+        {
+            NetworkInterface[] nics = NetworkInterface.GetAllNetworkInterfaces();
+            if (nics == null || nics.Length < 1)
+            {
+                return;
+            }
+
+            long sendCount = 0;
+            long revCount = 0;
+            foreach (NetworkInterface adapter in nics)
+            {
+                IPv4InterfaceStatistics ipv4Statistics = adapter.GetIPv4Statistics();
+                sendCount += ipv4Statistics.BytesSent;
+                revCount += ipv4Statistics.BytesReceived;
+            }
+            string SendSpeed = ((sendCount - lastSendCount) / 1024).ToString();
+            string RevSpeed = ((revCount - lastRevCount) / 1024).ToString();
+            string SendCount = (sendCount / 1024 / 1024).ToString();
+            string RevCount = (revCount / 1024 / 1024).ToString();
+            lastRevCount = revCount;
+            lastSendCount = sendCount;
+            uiLabel3.Text = "上传速度：" + SendSpeed + " k/s";
+            uiLabel4.Text = "下载速度：" + RevSpeed + " k/s";
+
+        }
+
+        private void ShowForm()
+        {
+            biying biying = new biying();
+            Form1 form1 = new Form1();
+            biying.MdiParent = this;
+            biying.Style = form1.Style;
+            TabPage tb = new TabPage();
+            tb.Controls.Add(biying); //将窗体添加到form中
+            tb.Text = biying.Text + "   "; //设定tabpage标签
+            tb.Name = biying.Name; //设定tabpage的name属性，为了之后的新增和销毁处理
+            uiTabControl1.TabPages.Add(tb);
+            biying.Dock = DockStyle.Fill; //填充整个tabpage
+            biying.Show();
+            uiTabControl1.SelectedTab = uiTabControl1.TabPages[uiTabControl1.TabPages.Count - 1];
+        }
+
+        private void ThreadFunc()
+        {
+            MethodInvoker mi = new MethodInvoker(ShowForm);
+            this.BeginInvoke(mi);
         }
 
         //菜单栏，关闭，主题
@@ -164,12 +235,11 @@ namespace WebApiUI
                 tb.Text = js.Text + "   "; //设定tabpage标签
                 tb.Name = js.Name; //设定tabpage的name属性，为了之后的新增和销毁处理
                 uiTabControl1.TabPages.Add(tb);
-                //form2.FormBorderStyle = FormBorderStyle.None; //去除原form自带的边框
                 js.Dock = DockStyle.Fill; //填充整个tabpage
                 js.Show();
                 uiTabControl1.SelectedTab = uiTabControl1.TabPages[uiTabControl1.TabPages.Count - 1];
             }
-            else if(node.Text == "文本翻译")
+            else if (node.Text == "文本翻译")
             {
                 fanyi fanyi = new fanyi();
                 Form1 form1 = new Form1();
@@ -180,26 +250,26 @@ namespace WebApiUI
                 tb.Text = fanyi.Text + "   "; //设定tabpage标签
                 tb.Name = fanyi.Name; //设定tabpage的name属性，为了之后的新增和销毁处理
                 uiTabControl1.TabPages.Add(tb);
-                //form2.FormBorderStyle = FormBorderStyle.None; //去除原form自带的边框
                 fanyi.Dock = DockStyle.Fill; //填充整个tabpage
                 fanyi.Show();
                 uiTabControl1.SelectedTab = uiTabControl1.TabPages[uiTabControl1.TabPages.Count - 1];
             }
             else if (node.Text == "每日壁纸")
             {
-                biying biying = new biying();
-                Form1 form1 = new Form1();
-                biying.MdiParent = this;
-                biying.Style = form1.Style;
-                TabPage tb = new TabPage();
-                tb.Controls.Add(biying); //将窗体添加到form中
-                tb.Text = biying.Text + "   "; //设定tabpage标签
-                tb.Name = biying.Name; //设定tabpage的name属性，为了之后的新增和销毁处理
-                uiTabControl1.TabPages.Add(tb);
-                //form2.FormBorderStyle = FormBorderStyle.None; //去除原form自带的边框
-                biying.Dock = DockStyle.Fill; //填充整个tabpage
-                biying.Show();
-                uiTabControl1.SelectedTab = uiTabControl1.TabPages[uiTabControl1.TabPages.Count - 1];
+                Thread thread = new Thread(new ThreadStart(ThreadFunc));
+                thread.Start();
+                //biying biying = new biying();
+                //Form1 form1 = new Form1();
+                //biying.MdiParent = this;
+                //biying.Style = form1.Style;
+                //TabPage tb = new TabPage();
+                //tb.Controls.Add(biying); //将窗体添加到form中
+                //tb.Text = biying.Text + "   "; //设定tabpage标签
+                //tb.Name = biying.Name; //设定tabpage的name属性，为了之后的新增和销毁处理
+                //uiTabControl1.TabPages.Add(tb);
+                //biying.Dock = DockStyle.Fill; //填充整个tabpage
+                //biying.Show();
+                //uiTabControl1.SelectedTab = uiTabControl1.TabPages[uiTabControl1.TabPages.Count - 1];
             }
             else if (node.Text == "七天天气")
             {
@@ -212,7 +282,6 @@ namespace WebApiUI
                 tb.Text = tianqi.Text + "   "; //设定tabpage标签
                 tb.Name = tianqi.Name; //设定tabpage的name属性，为了之后的新增和销毁处理
                 uiTabControl1.TabPages.Add(tb);
-                //form2.FormBorderStyle = FormBorderStyle.None; //去除原form自带的边框
                 tianqi.Dock = DockStyle.Fill; //填充整个tabpage
                 tianqi.Show();
                 uiTabControl1.SelectedTab = uiTabControl1.TabPages[uiTabControl1.TabPages.Count - 1];
@@ -228,7 +297,6 @@ namespace WebApiUI
                 tb.Text = baidu.Text + "   "; //设定tabpage标签
                 tb.Name = baidu.Name; //设定tabpage的name属性，为了之后的新增和销毁处理
                 uiTabControl1.TabPages.Add(tb);
-                //form2.FormBorderStyle = FormBorderStyle.None; //去除原form自带的边框
                 baidu.Dock = DockStyle.Fill; //填充整个tabpage
                 baidu.Show();
                 uiTabControl1.SelectedTab = uiTabControl1.TabPages[uiTabControl1.TabPages.Count - 1];
@@ -244,7 +312,6 @@ namespace WebApiUI
                 tb.Text = huilv.Text + "   "; //设定tabpage标签
                 tb.Name = huilv.Name; //设定tabpage的name属性，为了之后的新增和销毁处理
                 uiTabControl1.TabPages.Add(tb);
-                //form2.FormBorderStyle = FormBorderStyle.None; //去除原form自带的边框
                 huilv.Dock = DockStyle.Fill; //填充整个tabpage
                 huilv.Show();
                 uiTabControl1.SelectedTab = uiTabControl1.TabPages[uiTabControl1.TabPages.Count - 1];
@@ -260,7 +327,6 @@ namespace WebApiUI
                 tb.Text = jiqiren.Text + "   "; //设定tabpage标签
                 tb.Name = jiqiren.Name; //设定tabpage的name属性，为了之后的新增和销毁处理
                 uiTabControl1.TabPages.Add(tb);
-                //form2.FormBorderStyle = FormBorderStyle.None; //去除原form自带的边框
                 jiqiren.Dock = DockStyle.Fill; //填充整个tabpage
                 jiqiren.Show();
                 uiTabControl1.SelectedTab = uiTabControl1.TabPages[uiTabControl1.TabPages.Count - 1];
@@ -280,7 +346,30 @@ namespace WebApiUI
                 huochepiao.Show();
                 uiTabControl1.SelectedTab = uiTabControl1.TabPages[uiTabControl1.TabPages.Count - 1];
             }
+            else if (node.Text == "火车票LINQ")
+            {
+                HcpLinq HcpLinq = new HcpLinq();
+                Form1 form1 = new Form1();
+                HcpLinq.MdiParent = this;
+                HcpLinq.Style = form1.Style;
+                TabPage tb = new TabPage();
+                tb.Controls.Add(HcpLinq); //将窗体添加到form中
+                tb.Text = HcpLinq.Text + "   "; //设定tabpage标签
+                tb.Name = HcpLinq.Name; //设定tabpage的name属性，为了之后的新增和销毁处理
+                uiTabControl1.TabPages.Add(tb);
+                HcpLinq.Dock = DockStyle.Fill; //填充整个tabpage
+                HcpLinq.Show();
+                uiTabControl1.SelectedTab = uiTabControl1.TabPages[uiTabControl1.TabPages.Count - 1];
+            }
         }
 
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            //uiLabel1.Text = DateTime.Now.ToString();
+            //pingbaidu();
+            //wangsu();
+
+            timer();
+        }
     }
 }

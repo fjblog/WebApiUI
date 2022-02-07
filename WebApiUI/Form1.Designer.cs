@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("关闭其他");
             System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("关闭所有");
             System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("关闭", new System.Windows.Forms.TreeNode[] {
@@ -66,11 +67,17 @@
             System.Windows.Forms.TreeNode treeNode21 = new System.Windows.Forms.TreeNode("汇率");
             System.Windows.Forms.TreeNode treeNode22 = new System.Windows.Forms.TreeNode("机器人");
             System.Windows.Forms.TreeNode treeNode23 = new System.Windows.Forms.TreeNode("火车票");
+            System.Windows.Forms.TreeNode treeNode24 = new System.Windows.Forms.TreeNode("火车票LINQ");
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.uiNavBar1 = new Sunny.UI.UINavBar();
+            this.uiLabel4 = new Sunny.UI.UILabel();
+            this.uiLabel3 = new Sunny.UI.UILabel();
+            this.uiLabel2 = new Sunny.UI.UILabel();
             this.uiLabel1 = new Sunny.UI.UILabel();
             this.uiSplitContainer1 = new Sunny.UI.UISplitContainer();
             this.uiNavMenu1 = new Sunny.UI.UINavMenu();
             this.uiTabControl1 = new Sunny.UI.UITabControl();
+            this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.uiNavBar1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.uiSplitContainer1)).BeginInit();
             this.uiSplitContainer1.Panel1.SuspendLayout();
@@ -80,6 +87,9 @@
             // 
             // uiNavBar1
             // 
+            this.uiNavBar1.Controls.Add(this.uiLabel4);
+            this.uiNavBar1.Controls.Add(this.uiLabel3);
+            this.uiNavBar1.Controls.Add(this.uiLabel2);
             this.uiNavBar1.Controls.Add(this.uiLabel1);
             this.uiNavBar1.Dock = System.Windows.Forms.DockStyle.Top;
             this.uiNavBar1.DropMenuFont = new System.Drawing.Font("微软雅黑", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
@@ -115,10 +125,46 @@
             this.uiNavBar1.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
             treeNode3,
             treeNode12});
-            this.uiNavBar1.Size = new System.Drawing.Size(1546, 43);
+            this.uiNavBar1.Size = new System.Drawing.Size(1596, 43);
             this.uiNavBar1.TabIndex = 0;
             this.uiNavBar1.Text = "uiNavBar1";
             this.uiNavBar1.MenuItemClick += new Sunny.UI.UINavBar.OnMenuItemClick(this.uiNavBar1_MenuItemClick);
+            // 
+            // uiLabel4
+            // 
+            this.uiLabel4.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.uiLabel4.ForeColor = System.Drawing.Color.White;
+            this.uiLabel4.Location = new System.Drawing.Point(587, 3);
+            this.uiLabel4.Name = "uiLabel4";
+            this.uiLabel4.Size = new System.Drawing.Size(266, 40);
+            this.uiLabel4.StyleCustomMode = true;
+            this.uiLabel4.TabIndex = 3;
+            this.uiLabel4.Text = "uiLabel4";
+            this.uiLabel4.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // uiLabel3
+            // 
+            this.uiLabel3.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.uiLabel3.ForeColor = System.Drawing.Color.White;
+            this.uiLabel3.Location = new System.Drawing.Point(371, 3);
+            this.uiLabel3.Name = "uiLabel3";
+            this.uiLabel3.Size = new System.Drawing.Size(210, 40);
+            this.uiLabel3.StyleCustomMode = true;
+            this.uiLabel3.TabIndex = 2;
+            this.uiLabel3.Text = "uiLabel3";
+            this.uiLabel3.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // uiLabel2
+            // 
+            this.uiLabel2.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.uiLabel2.ForeColor = System.Drawing.Color.White;
+            this.uiLabel2.Location = new System.Drawing.Point(220, 0);
+            this.uiLabel2.Name = "uiLabel2";
+            this.uiLabel2.Size = new System.Drawing.Size(133, 40);
+            this.uiLabel2.StyleCustomMode = true;
+            this.uiLabel2.TabIndex = 1;
+            this.uiLabel2.Text = "uiLabel2";
+            this.uiLabel2.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // uiLabel1
             // 
@@ -126,7 +172,7 @@
             this.uiLabel1.ForeColor = System.Drawing.Color.White;
             this.uiLabel1.Location = new System.Drawing.Point(4, 0);
             this.uiLabel1.Name = "uiLabel1";
-            this.uiLabel1.Size = new System.Drawing.Size(320, 40);
+            this.uiLabel1.Size = new System.Drawing.Size(210, 40);
             this.uiLabel1.StyleCustomMode = true;
             this.uiLabel1.TabIndex = 0;
             this.uiLabel1.Text = "uiLabel1";
@@ -146,8 +192,8 @@
             // uiSplitContainer1.Panel2
             // 
             this.uiSplitContainer1.Panel2.Controls.Add(this.uiTabControl1);
-            this.uiSplitContainer1.Size = new System.Drawing.Size(1546, 820);
-            this.uiSplitContainer1.SplitterDistance = 261;
+            this.uiSplitContainer1.Size = new System.Drawing.Size(1596, 820);
+            this.uiSplitContainer1.SplitterDistance = 269;
             this.uiSplitContainer1.SplitterWidth = 11;
             this.uiSplitContainer1.TabIndex = 1;
             // 
@@ -185,15 +231,18 @@
             treeNode22.Text = "机器人";
             treeNode23.Name = "节点0";
             treeNode23.Text = "火车票";
+            treeNode24.Name = "节点0";
+            treeNode24.Text = "火车票LINQ";
             this.uiNavMenu1.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
             treeNode15,
             treeNode17,
             treeNode20,
             treeNode21,
             treeNode22,
-            treeNode23});
+            treeNode23,
+            treeNode24});
             this.uiNavMenu1.ShowLines = false;
-            this.uiNavMenu1.Size = new System.Drawing.Size(261, 820);
+            this.uiNavMenu1.Size = new System.Drawing.Size(269, 820);
             this.uiNavMenu1.Style = Sunny.UI.UIStyle.Custom;
             this.uiNavMenu1.TabIndex = 0;
             this.uiNavMenu1.TipsFont = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
@@ -211,8 +260,8 @@
             this.uiTabControl1.MenuStyle = Sunny.UI.UIMenuStyle.Custom;
             this.uiTabControl1.Name = "uiTabControl1";
             this.uiTabControl1.SelectedIndex = 0;
-            this.uiTabControl1.ShowCloseButton = true;
-            this.uiTabControl1.Size = new System.Drawing.Size(1274, 820);
+            this.uiTabControl1.ShowActiveCloseButton = true;
+            this.uiTabControl1.Size = new System.Drawing.Size(1316, 820);
             this.uiTabControl1.SizeMode = System.Windows.Forms.TabSizeMode.Fixed;
             this.uiTabControl1.TabBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(240)))), ((int)(((byte)(240)))));
             this.uiTabControl1.TabIndex = 0;
@@ -220,14 +269,21 @@
             this.uiTabControl1.TabUnSelectedForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(48)))), ((int)(((byte)(48)))), ((int)(((byte)(48)))));
             this.uiTabControl1.TipsFont = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             // 
+            // timer1
+            // 
+            this.timer1.Enabled = true;
+            this.timer1.Interval = 1000;
+            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(14F, 31F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
-            this.ClientSize = new System.Drawing.Size(1550, 900);
+            this.ClientSize = new System.Drawing.Size(1600, 900);
             this.Controls.Add(this.uiSplitContainer1);
             this.Controls.Add(this.uiNavBar1);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.IsMdiContainer = true;
             this.Name = "Form1";
             this.Padding = new System.Windows.Forms.Padding(2, 35, 2, 2);
@@ -250,6 +306,10 @@
         private Sunny.UI.UINavMenu uiNavMenu1;
         private Sunny.UI.UITabControl uiTabControl1;
         private Sunny.UI.UILabel uiLabel1;
+        private Sunny.UI.UILabel uiLabel2;
+        private System.Windows.Forms.Timer timer1;
+        private Sunny.UI.UILabel uiLabel4;
+        private Sunny.UI.UILabel uiLabel3;
     }
 }
 
